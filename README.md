@@ -33,6 +33,12 @@ A browser version of the game is included in [`web-demo/`](web-demo/). It does n
 
 Open [`web-demo/index.html`](web-demo/index.html) in a browser to try it locally.
 
+![Web demo light mode gameplay](docs/images/web-demo-light.png)
+
+![Web demo dark mode with guess history](docs/images/web-demo-dark.png)
+
+The web demo is a frontend-only version of the embedded game. It mirrors the original STM32 behavior, but makes the project easier to test and present because anyone can run it in a browser without STM32CubeIDE or Proteus.
+
 The web demo includes:
 
 - Proteus-inspired board layout
