@@ -30,6 +30,7 @@ const els = {
   clockChip: document.querySelector("#clockChip"),
   scoreChip: document.querySelector("#scoreChip"),
   terminal: document.querySelector("#terminal"),
+  themeBtn: document.querySelector("#themeBtn"),
   guessInput: document.querySelector("#guessInput"),
   submitBtn: document.querySelector("#submitBtn"),
   startBtn: document.querySelector("#startBtn"),
@@ -42,6 +43,10 @@ const els = {
   secretBox: document.querySelector("#secretBox"),
   lcdLine1: document.querySelector("#lcdLine1"),
   lcdLine2: document.querySelector("#lcdLine2"),
+  pressureLabel: document.querySelector("#pressureLabel"),
+  pressureFill: document.querySelector("#pressureFill"),
+  rescueLabel: document.querySelector("#rescueLabel"),
+  lastFeedbackLabel: document.querySelector("#lastFeedbackLabel"),
   sevenDisplay: document.querySelector("#sevenDisplay"),
   led1: document.querySelector("#led1"),
   led2: document.querySelector("#led2"),
@@ -57,6 +62,7 @@ const els = {
 };
 
 function init() {
+  applySavedTheme();
   buildSevenSegment();
   buildKeypad();
   appendTerminal("--- Mastermind Game ---");
@@ -64,6 +70,7 @@ function init() {
   render();
 
   els.startBtn.addEventListener("click", startGame);
+  els.themeBtn.addEventListener("click", toggleTheme);
   els.resetBtn.addEventListener("click", resetGame);
   els.submitBtn.addEventListener("click", submitGuess);
   els.rescueBtn.addEventListener("click", useRescue);
@@ -398,6 +405,7 @@ function render() {
   renderHistory();
   renderInputs();
   renderRescue();
+  renderMissionStatus();
 }
 
 function renderState() {
@@ -455,6 +463,52 @@ function renderInputs() {
 function renderRescue() {
   els.led1.classList.toggle("active", state.rescueUsed < 1);
   els.led2.classList.toggle("active", state.rescueUsed < 2);
+}
+
+function renderMissionStatus() {
+  const ratio = state.initialTime > 0 ? Math.max(0, Math.min(1, state.remaining / state.initialTime)) : 1;
+  const percent = Math.round(ratio * 100);
+  els.pressureFill.style.width = `${percent}%`;
+  els.pressureFill.classList.toggle("warn", percent <= 50 && percent > 25);
+  els.pressureFill.classList.toggle("danger", percent <= 25);
+
+  if (state.mode === "GAMEOVER" && state.remaining === 0) {
+    els.pressureLabel.textContent = "Detonated";
+  } else if (percent <= 25 && state.mode === "PLAYING") {
+    els.pressureLabel.textContent = "Critical";
+  } else if (percent <= 50 && state.mode === "PLAYING") {
+    els.pressureLabel.textContent = "Armed";
+  } else {
+    els.pressureLabel.textContent = "Safe";
+  }
+
+  els.rescueLabel.textContent = `${Math.max(0, 2 - state.rescueUsed)} left`;
+  els.lastFeedbackLabel.textContent = state.history[0] ? state.history[0].feedback : "----";
+}
+
+function applySavedTheme() {
+  let savedTheme = "light";
+  try {
+    savedTheme = window.localStorage.getItem("mastermind-theme") || "light";
+  } catch {
+    savedTheme = "light";
+  }
+  applyTheme(savedTheme === "dark" ? "dark" : "light");
+}
+
+function toggleTheme() {
+  const nextTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
+  applyTheme(nextTheme);
+}
+
+function applyTheme(theme) {
+  document.body.dataset.theme = theme;
+  els.themeBtn.textContent = theme === "dark" ? "Light" : "Dark";
+  try {
+    window.localStorage.setItem("mastermind-theme", theme);
+  } catch {
+    // Theme persistence is optional when storage is blocked.
+  }
 }
 
 function clearBuzzer() {

@@ -18,6 +18,7 @@
         <span id="stateChip" class="chip chip-wait">WAIT_START</span>
         <span id="clockChip" class="chip">TIM2 idle</span>
         <span id="scoreChip" class="chip">Score 0</span>
+        <button id="themeBtn" class="theme-btn" type="button" aria-label="Toggle dark mode">Dark</button>
       </div>
     </header>
 
@@ -44,6 +45,24 @@
             <p>LCD, seven-segment timer, LEDs, button, and buzzer</p>
           </div>
           <button id="startBtn" class="primary-btn">Start S</button>
+        </div>
+
+        <div class="mission-status" aria-label="Mission status">
+          <div class="metric-card">
+            <span>Bomb Pressure</span>
+            <strong id="pressureLabel">Safe</strong>
+            <div class="meter">
+              <div id="pressureFill" class="meter-fill"></div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <span>Rescue Chances</span>
+            <strong id="rescueLabel">2 left</strong>
+          </div>
+          <div class="metric-card">
+            <span>Last Feedback</span>
+            <strong id="lastFeedbackLabel">----</strong>
+          </div>
         </div>
 
         <div class="hardware-layout">
@@ -118,6 +137,15 @@
         <h2>Keypad</h2>
         <div id="keypad" class="keypad" aria-label="Numeric keypad"></div>
         <div class="keyboard-note">Keyboard: press S to start, digits to type, Enter to submit, Backspace to edit.</div>
+      </section>
+
+      <section class="panel upgrade-panel">
+        <h2>More Ideas</h2>
+        <div class="idea-list">
+          <div><strong>Challenge mode</strong><span>Fixed secret code and limited attempts for classroom demos.</span></div>
+          <div><strong>Firmware parity</strong><span>Compare JS feedback against exported C test cases.</span></div>
+          <div><strong>Demo recording</strong><span>Add a short GIF/video for the GitHub README.</span></div>
+        </div>
       </section>
 
       <section class="panel history-panel">

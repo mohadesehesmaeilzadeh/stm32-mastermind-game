@@ -42,8 +42,11 @@ The web demo includes:
 - Rescue button with two-use behavior
 - LEDs and buzzer state
 - Difficulty modes
+- Dark/light UI theme
+- Countdown pressure meter
 - Optional secret-code reveal for teaching/debugging
 - Guess history and feedback explanation
+- Project upgrade ideas panel
 
 ## Game Rules
 
