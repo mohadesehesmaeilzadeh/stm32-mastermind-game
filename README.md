@@ -9,6 +9,8 @@
 
 This project implements a Mastermind-style bomb defusal game on an STM32F401 microcontroller. The player starts the game from a serial terminal, guesses a hidden 4-digit code, and receives feedback on an LCD. A seven-segment display shows the remaining countdown time. An external interrupt button gives limited bonus time, while LEDs and a buzzer indicate game status.
 
+![STM32 Mastermind game architecture](docs/images/project-architecture.svg)
+
 ## Features
 
 - STM32F401VCTx firmware written in C
