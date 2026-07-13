@@ -1,0 +1,58 @@
+# Build outputs
+Debug/
+Release/
+build/
+out/
+
+# Object and dependency files
+*.o
+*.obj
+*.d
+*.su
+*.cyclo
+*.lst
+
+# Firmware binaries and generated reports
+*.elf
+*.hex
+*.bin
+*.map
+*.list
+*.srec
+*.uf2
+
+# Archives and generated packages
+*.zip
+*.tar
+*.tar.gz
+*.7z
+
+# STM32CubeIDE / Eclipse local metadata
+.metadata/
+.settings/
+RemoteSystemsTempFiles/
+
+# Keep STM32 project files tracked
+!.project
+!.cproject
+!.mxproject
+!*.ioc
+!*.ld
+
+# Proteus backup/temp files
+*.pdsbak
+*.PDSPRJ.*
+*.workspace
+*.log
+*.tmp
+Backup Of *
+Last Loaded *
+
+# Editor folders
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
