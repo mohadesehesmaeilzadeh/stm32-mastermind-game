@@ -25,6 +25,25 @@ This project implements a Mastermind-style bomb defusal game on an STM32F401 mic
 - Win state with `YOU WON`
 - Timeout state with `BOOM`
 - Proteus simulation project included
+- Frontend-only JavaScript web demo included
+
+## Web Demo
+
+A browser version of the game is included in [`web-demo/`](web-demo/). It does not need a backend or database.
+
+Open [`web-demo/index.html`](web-demo/index.html) in a browser to try it locally.
+
+The web demo includes:
+
+- Proteus-inspired board layout
+- Virtual terminal output
+- LCD display
+- Four-digit seven-segment countdown
+- Rescue button with two-use behavior
+- LEDs and buzzer state
+- Difficulty modes
+- Optional secret-code reveal for teaching/debugging
+- Guess history and feedback explanation
 
 ## Game Rules
 
@@ -77,18 +96,23 @@ The rescue button can be used twice:
 
 ```text
 .
-├── docs/
-│   └── Final_Project.pdf
-├── firmware/
-│   └── Mastermind_Game/
-│       ├── Core/
-│       ├── Drivers/
-│       ├── Mastermind_Game.ioc
-│       └── STM32F401VCTX_FLASH.ld
-├── simulation/
-│   └── FINAL_PROJECT.pdsprj
-├── README.md
-└── .gitignore
+|-- docs/
+|   |-- Final_Project.pdf
+|   `-- images/
+|-- firmware/
+|   `-- Mastermind_Game/
+|       |-- Core/
+|       |-- Drivers/
+|       |-- Mastermind_Game.ioc
+|       `-- STM32F401VCTX_FLASH.ld
+|-- simulation/
+|   `-- FINAL_PROJECT.pdsprj
+|-- web-demo/
+|   |-- index.html
+|   |-- style.css
+|   `-- script.js
+|-- README.md
+`-- .gitignore
 ```
 
 ## Architecture
@@ -130,6 +154,13 @@ The firmware uses three main states:
 4. Start the simulation.
 5. Use the virtual terminal to send `S` and guesses.
 
+### Web Demo
+
+1. Open `web-demo/index.html` in a browser.
+2. Press `Start S`.
+3. Enter guesses with the input box, keypad, or keyboard.
+4. Use the rescue button up to two times.
+
 ## Serial Terminal Settings
 
 | Setting | Value |
@@ -153,4 +184,4 @@ The firmware uses three main states:
 
 Course project by Mohadeseh Esmaeilzadeh and Negar.
 
-Developed for a microcontroller/microprocessor course using STM32CubeIDE and Proteus.
+Developed for a microcontroller/microprocessor course using STM32CubeIDE, Proteus, and a frontend-only JavaScript web demo.
