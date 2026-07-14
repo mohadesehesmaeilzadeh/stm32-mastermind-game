@@ -191,6 +191,6 @@ The firmware uses three main states:
 
 ## Credits
 
-Course project by Mohadeseh Esmaeilzadeh and Negar.
+Course project by Mohadeseh Esmaeilzadeh.
 
 Developed for a microcontroller/microprocessor course using STM32CubeIDE, Proteus, and a frontend-only JavaScript web demo.
