@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STM32 Mastermind - Web Interface</title>
+  <meta name="description" content="A premium frontend interface and interactive browser simulation for the STM32 Mastermind bomb defusal game.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark">
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#hero" aria-label="STM32 Mastermind home">
+      <span class="brand-mark">M4</span>
+      <span>
+        <strong>STM32 Mastermind</strong>
+        <small>Bomb Defusal Interface</small>
+      </span>
+    </a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#overview">Overview</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#demo">Demo</a>
+      <a href="#gallery">Gallery</a>
+    </nav>
+    <div class="header-actions">
+      <button id="themeToggle" class="icon-button" type="button" aria-label="Toggle theme">Dark</button>
+      <a class="ghost-button" href="https://github.com/mohadesehesmaeilzadeh/stm32-mastermind-game" target="_blank" rel="noreferrer">GitHub</a>
+    </div>
+  </header>
+
+  <main>
+    <section id="hero" class="hero section">
+      <div class="hero-copy">
+        <p class="eyebrow">Microcontroller project plus browser simulation</p>
+        <h1>Crack the code before the countdown reaches zero.</h1>
+        <p class="hero-text">
+          A polished web interface for an STM32F401 Mastermind bomb defusal game, with USART-style input, LCD feedback, seven-segment countdown, EXTI rescue logic, LEDs, buzzer states, and a real-time teaching panel.
+        </p>
+        <div class="hero-actions">
+          <a class="primary-button" href="#demo">Launch Web Demo</a>
+          <a class="secondary-button" href="#architecture">View Architecture</a>
+        </div>
+        <div class="hero-stats" aria-label="Project highlights">
+          <div><strong>STM32F401</strong><span>Target MCU</span></div>
+          <div><strong>USART + EXTI</strong><span>Input flow</span></div>
+          <div><strong>Pure JS</strong><span>No backend</span></div>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-label="Product preview">
+        <div class="glass-device">
+          <div class="device-toolbar">
+            <span></span><span></span><span></span>
+            <strong>Virtual Terminal</strong>
+          </div>
+          <div class="terminal-preview">
+            <p>--- Mastermind Game ---</p>
+            <p>Press 'S' to Start</p>
+            <p>Game Started!</p>
+            <p>Enter 4 digits: 7318</p>
+            <p>Feedback: [-++]</p>
+          </div>
+          <div class="mini-board">
+            <div class="mini-seven">0058</div>
+            <div class="mini-lcd">[-++]<br>TRY AGAIN</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="overview" class="section split-section">
+      <div>
+        <p class="section-kicker">Project Overview</p>
+        <h2>Embedded logic presented like a real product.</h2>
+        <p>
+          The original firmware runs on STM32F401 and implements a Mastermind-style game. This web interface translates the same game logic into a browser experience so visitors can understand the project without opening Proteus or flashing a board.
+        </p>
+      </div>
+      <div class="overview-grid">
+        <article>
+          <span class="spec-icon">CPU</span>
+          <h3>STM32 Game State</h3>
+          <p>WAIT_START, PLAYING, and GAMEOVER states are represented visually.</p>
+        </article>
+        <article>
+          <span class="spec-icon">IRQ</span>
+          <h3>Interrupt Flow</h3>
+          <p>USART, TIM2, EXTI0, and GPIO activity indicators pulse during play.</p>
+        </article>
+        <article>
+          <span class="spec-icon">LCD</span>
+          <h3>Hardware UI</h3>
+          <p>LCD text, LEDs, buzzer, and seven-segment timer mirror the firmware outputs.</p>
+        </article>
+        <article>
+          <span class="spec-icon">WEB</span>
+          <h3>Frontend Only</h3>
+          <p>Runs as static HTML, CSS, and JavaScript with no backend or database.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="architecture" class="section">
+      <div class="section-heading">
+        <p class="section-kicker">Architecture Visualization</p>
+        <h2>From terminal input to hardware feedback.</h2>
+      </div>
+      <div class="architecture">
+        <div class="arch-node input-node">
+          <span>USART1</span>
+          <strong>Serial Terminal</strong>
+          <small>Start command and guesses</small>
+        </div>
+        <div class="arch-line"></div>
+        <div class="arch-node core-node">
+          <span>Cortex-M4</span>
+          <strong>Game Logic</strong>
+          <small>Secret code, compare algorithm, state machine</small>
+        </div>
+        <div class="arch-line"></div>
+        <div class="arch-node output-node">
+          <span>GPIO</span>
+          <strong>LCD / 7-Segment / LEDs / Buzzer</strong>
+          <small>Feedback and status outputs</small>
+        </div>
+      </div>
+      <div class="bus-grid">
+        <div><strong>TIM2</strong><span>Countdown and display refresh</span></div>
+        <div><strong>EXTI0</strong><span>Rescue button interrupt</span></div>
+        <div><strong>Flash</strong><span>Firmware and constants</span></div>
+        <div><strong>RAM</strong><span>Game state and input buffer</span></div>
+      </div>
+    </section>
+
+    <section class="section features-section">
+      <div class="section-heading">
+        <p class="section-kicker">Features and Specifications</p>
+        <h2>Everything a reviewer expects to see.</h2>
+      </div>
+      <div class="feature-grid">
+        <article><span>01</span><h3>4-Digit Secret Code</h3><p>Generated on game start, matching the embedded project behavior.</p></article>
+        <article><span>02</span><h3>Mastermind Feedback</h3><p>`*`, `+`, and `-` feedback uses the same exact-then-misplaced algorithm.</p></article>
+        <article><span>03</span><h3>Countdown Pressure</h3><p>Timer and pressure meter make the bomb-defusal gameplay readable at a glance.</p></article>
+        <article><span>04</span><h3>Rescue Interrupt</h3><p>Two-use rescue button simulates EXTI behavior with +15s and +5s bonuses.</p></article>
+        <article><span>05</span><h3>Teaching Mode</h3><p>Optional secret reveal and feedback explanation help explain the algorithm.</p></article>
+        <article><span>06</span><h3>Dark and Light UI</h3><p>Theme toggle is saved locally and designed for presentation screenshots.</p></article>
+      </div>
+    </section>
+
+    <section class="section tech-section">
+      <div class="section-heading">
+        <p class="section-kicker">Technologies Used</p>
+        <h2>Embedded firmware plus a static frontend layer.</h2>
+      </div>
+      <div class="badge-cloud" aria-label="Technology badges">
+        <span>STM32F401VCTx</span>
+        <span>ARM Cortex-M4</span>
+        <span>C</span>
+        <span>STM32CubeIDE</span>
+        <span>Proteus</span>
+        <span>USART1</span>
+        <span>TIM2</span>
+        <span>EXTI0</span>
+        <span>GPIO</span>
+        <span>HTML</span>
+        <span>CSS</span>
+        <span>JavaScript</span>
+      </div>
+    </section>
+
+    <section class="section steps-section">
+      <div class="section-heading">
+        <p class="section-kicker">How It Works</p>
+        <h2>The game loop in five clean steps.</h2>
+      </div>
+      <div class="steps">
+        <article><span>1</span><h3>Start</h3><p>User sends `S` or presses the start button.</p></article>
+        <article><span>2</span><h3>Generate</h3><p>The system creates a hidden 4-digit code.</p></article>
+        <article><span>3</span><h3>Guess</h3><p>User submits exactly four digits through the terminal UI.</p></article>
+        <article><span>4</span><h3>Compare</h3><p>Exact matches are marked first, then misplaced digits are checked.</p></article>
+        <article><span>5</span><h3>Resolve</h3><p>Win before timeout, or trigger BOOM when the countdown reaches zero.</p></article>
+      </div>
+    </section>
+
+    <section id="demo" class="section demo-section">
+      <div class="section-heading">
+        <p class="section-kicker">Interactive Web Demo</p>
+        <h2>Play the STM32 logic directly in the browser.</h2>
+      </div>
+
+      <div class="demo-shell">
+        <div class="demo-topbar">
+          <div class="state-pills" aria-label="Game status">
+            <span id="stateChip" class="chip chip-wait">WAIT_START</span>
+            <span id="clockChip" class="chip">TIM2 idle</span>
+            <span id="scoreChip" class="chip">Score 0</span>
+          </div>
+          <button id="startBtn" class="primary-button small-button" type="button">Start S</button>
+        </div>
+
+        <div class="sim-grid">
+          <section class="sim-card terminal-panel">
+            <div class="panel-head">
+              <div>
+                <h3>Virtual Terminal</h3>
+                <p>USART1 input and firmware messages</p>
+              </div>
+              <span class="port-label">PA9 / PA10</span>
+            </div>
+            <div id="terminal" class="terminal" aria-live="polite"></div>
+            <div class="command-row">
+              <input id="guessInput" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Enter 4 digits" aria-label="Guess input">
+              <button id="submitBtn" class="primary-button small-button" type="button">Submit</button>
+            </div>
+          </section>
+
+          <section class="sim-card board-panel">
+            <div class="mission-status" aria-label="Mission status">
+              <div class="metric-card">
+                <span>Bomb Pressure</span>
+                <strong id="pressureLabel">Safe</strong>
+                <div class="meter"><div id="pressureFill" class="meter-fill"></div></div>
+              </div>
+              <div class="metric-card"><span>Rescue Chances</span><strong id="rescueLabel">2 left</strong></div>
+              <div class="metric-card"><span>Last Feedback</span><strong id="lastFeedbackLabel">----</strong></div>
+            </div>
+
+            <div class="hardware-layout">
+              <div class="seven-card">
+                <div id="sevenDisplay" class="seven-display" aria-label="Seven segment countdown"></div>
+                <div class="digit-labels"><span>1</span><span>2</span><span>3</span><span>4</span></div>
+              </div>
+
+              <div class="lcd" aria-label="LCD display">
+                <div id="lcdLine1">Press S to Start</div>
+                <div id="lcdLine2">USART ready</div>
+              </div>
+
+              <div class="mcu-card">
+                <div class="mcu-title">U1 STM32F401VC</div>
+                <div class="pin-grid">
+                  <span>USART1</span><strong>RX IRQ</strong>
+                  <span>TIM2</span><strong>Countdown</strong>
+                  <span>EXTI0</span><strong>Rescue</strong>
+                  <span>GPIO</span><strong>LCD/LED/Buzzer</strong>
+                </div>
+              </div>
+
+              <div class="io-card">
+                <div class="led-row"><div id="led1" class="led active"></div><span>Rescue LED 1</span></div>
+                <div class="led-row"><div id="led2" class="led active"></div><span>Rescue LED 2</span></div>
+                <button id="rescueBtn" class="rescue-button" type="button">EXTI Rescue</button>
+                <div id="buzzer" class="buzzer">BUZ1</div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="sim-card control-panel">
+            <h3>Control Center</h3>
+            <label class="field">
+              <span>Difficulty</span>
+              <select id="difficultySelect">
+                <option value="90">Easy - 90 sec</option>
+                <option value="60" selected>Normal - 60 sec</option>
+                <option value="30">Hard - 30 sec</option>
+                <option value="20">Expert - 20 sec</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Code mode</span>
+              <select id="codeModeSelect">
+                <option value="repeat" selected>Firmware mode - repeats</option>
+                <option value="unique">Unique digits</option>
+              </select>
+            </label>
+            <label class="toggle"><input id="debugToggle" type="checkbox"><span>Show secret code</span></label>
+            <label class="toggle"><input id="soundToggle" type="checkbox" checked><span>Enable buzzer sound</span></label>
+            <div id="secretBox" class="secret-box">Secret: ----</div>
+            <button id="resetBtn" class="secondary-button full-button" type="button">Reset</button>
+          </aside>
+
+          <section class="sim-card keypad-panel">
+            <h3>Keypad</h3>
+            <div id="keypad" class="keypad" aria-label="Numeric keypad"></div>
+            <p class="keyboard-note">Keyboard: press S to start, digits to type, Enter to submit, Backspace to edit.</p>
+          </section>
+
+          <section class="sim-card history-panel">
+            <div class="panel-head">
+              <div>
+                <h3>Guess History</h3>
+                <p>Feedback follows the STM32 firmware rules</p>
+              </div>
+              <span id="attemptChip" class="chip">0 attempts</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Guess</th><th>Feedback</th><th>Exact</th><th>Misplaced</th></tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="sim-card teaching-panel">
+            <h3>Feedback Decoder</h3>
+            <div id="feedbackExplain" class="feedback-explain">
+              Exact matches are checked first. Remaining unmatched digits are then searched in the secret code.
+            </div>
+            <div class="trace-grid">
+              <div id="traceUsart" class="trace">USART1 RX</div>
+              <div id="traceTim" class="trace">TIM2 IRQ</div>
+              <div id="traceExti" class="trace">EXTI0 IRQ</div>
+              <div id="traceGpio" class="trace">GPIO OUT</div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery" class="section gallery-section">
+      <div class="section-heading">
+        <p class="section-kicker">Gallery</p>
+        <h2>Hardware simulation and web interface previews.</h2>
+      </div>
+      <div class="gallery-grid">
+        <figure>
+          <img src="assets/gallery/proteus-game-start.png" alt="Proteus simulation showing game start state">
+          <figcaption>Proteus simulation during game start.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/gallery/proteus-win-state.png" alt="Proteus simulation showing winning game state">
+          <figcaption>Completed winning run in the original simulation.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section cta-section">
+      <div>
+        <p class="section-kicker">GitHub Repository</p>
+        <h2>Explore the firmware, Proteus files, documentation, and web interface.</h2>
+      </div>
+      <a class="primary-button" href="https://github.com/mohadesehesmaeilzadeh/stm32-mastermind-game" target="_blank" rel="noreferrer">Open on GitHub</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Course project by Mohadeseh Esmaeilzadeh.</span>
+    <span>Built with STM32CubeIDE, Proteus, HTML, CSS, and JavaScript.</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "stm32-mastermind-web-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static frontend landing page and browser simulator for the STM32 Mastermind game.",
+  "scripts": {
+    "start": "python -m http.server 8080",
+    "screenshot": "node scripts/capture-screenshot.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.54.0"
+  }
+}

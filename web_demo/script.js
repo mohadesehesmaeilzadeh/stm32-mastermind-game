@@ -26,11 +26,11 @@ const state = {
 };
 
 const els = {
+  themeToggle: document.querySelector("#themeToggle"),
   stateChip: document.querySelector("#stateChip"),
   clockChip: document.querySelector("#clockChip"),
   scoreChip: document.querySelector("#scoreChip"),
   terminal: document.querySelector("#terminal"),
-  themeBtn: document.querySelector("#themeBtn"),
   guessInput: document.querySelector("#guessInput"),
   submitBtn: document.querySelector("#submitBtn"),
   startBtn: document.querySelector("#startBtn"),
@@ -65,12 +65,13 @@ function init() {
   applySavedTheme();
   buildSevenSegment();
   buildKeypad();
+  setupRevealAnimations();
   appendTerminal("--- Mastermind Game ---");
   appendTerminal("Press 'S' to Start");
   render();
 
+  els.themeToggle.addEventListener("click", toggleTheme);
   els.startBtn.addEventListener("click", startGame);
-  els.themeBtn.addEventListener("click", toggleTheme);
   els.resetBtn.addEventListener("click", resetGame);
   els.submitBtn.addEventListener("click", submitGuess);
   els.rescueBtn.addEventListener("click", useRescue);
@@ -80,12 +81,25 @@ function init() {
   document.addEventListener("keydown", handleKeyboard);
 }
 
+function setupRevealAnimations() {
+  const targets = document.querySelectorAll(".section");
+  targets.forEach((target) => target.classList.add("reveal"));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  targets.forEach((target) => observer.observe(target));
+}
+
 function buildSevenSegment() {
   els.sevenDisplay.innerHTML = "";
   for (let i = 0; i < 4; i += 1) {
     const digit = document.createElement("div");
     digit.className = "digit";
-    digit.dataset.index = String(i);
     ["a", "b", "c", "d", "e", "f", "g"].forEach((segment) => {
       const span = document.createElement("span");
       span.className = `seg seg-${segment}`;
@@ -486,31 +500,6 @@ function renderMissionStatus() {
   els.lastFeedbackLabel.textContent = state.history[0] ? state.history[0].feedback : "----";
 }
 
-function applySavedTheme() {
-  let savedTheme = "light";
-  try {
-    savedTheme = window.localStorage.getItem("mastermind-theme") || "light";
-  } catch {
-    savedTheme = "light";
-  }
-  applyTheme(savedTheme === "dark" ? "dark" : "light");
-}
-
-function toggleTheme() {
-  const nextTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
-  applyTheme(nextTheme);
-}
-
-function applyTheme(theme) {
-  document.body.dataset.theme = theme;
-  els.themeBtn.textContent = theme === "dark" ? "Light" : "Dark";
-  try {
-    window.localStorage.setItem("mastermind-theme", theme);
-  } catch {
-    // Theme persistence is optional when storage is blocked.
-  }
-}
-
 function clearBuzzer() {
   els.buzzer.classList.remove("active");
 }
@@ -520,6 +509,31 @@ function pulse(element) {
   void element.offsetWidth;
   element.classList.add("pulse");
   window.setTimeout(() => element.classList.remove("pulse"), 260);
+}
+
+function applySavedTheme() {
+  let savedTheme = "dark";
+  try {
+    savedTheme = window.localStorage.getItem("mastermind-theme") || "dark";
+  } catch {
+    savedTheme = "dark";
+  }
+  applyTheme(savedTheme === "light" ? "light" : "dark");
+}
+
+function toggleTheme() {
+  const nextTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
+  applyTheme(nextTheme);
+}
+
+function applyTheme(theme) {
+  document.body.dataset.theme = theme;
+  els.themeToggle.textContent = theme === "dark" ? "Light" : "Dark";
+  try {
+    window.localStorage.setItem("mastermind-theme", theme);
+  } catch {
+    // Theme persistence is optional when local storage is blocked.
+  }
 }
 
 function playAlarm() {

@@ -52,6 +52,12 @@ Last Loaded *
 .vscode/
 .idea/
 
+# Web demo dependencies
+web_demo/node_modules/
+web_demo/.cache/
+web_demo/dist/
+web_demo/build/
+
 # OS files
 .DS_Store
 Thumbs.db
