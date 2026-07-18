@@ -1,4 +1,4 @@
-# STM32 Mastermind Game
+# STM32 Mastermind Game - my little bomb defusal project
 
 ![Platform](https://img.shields.io/badge/platform-STM32F401-blue)
 ![Language](https://img.shields.io/badge/language-C-green)
@@ -6,80 +6,41 @@
 ![IDE](https://img.shields.io/badge/IDE-STM32CubeIDE-orange)
 ![Simulation](https://img.shields.io/badge/simulation-Proteus-purple)
 
-An STM32F401 microcontroller project that turns the classic Mastermind code-breaking game into a timed bomb-defusal challenge. The repository includes the embedded firmware, Proteus simulation, project documentation, and a premium frontend-only web demo for presentation and browser-based testing.
+This is my microcontroller / microprocessor course project for July 2026. The idea is simple: take the classic Mastermind guessing game, make it feel like a small bomb-defusal challenge, then run it on an STM32F401 with LCD, seven-segment display, LEDs, buzzer, serial terminal, timer interrupt, and an external rescue button.
 
-## Plain English Summary
+Why this project? Well, I wanted something more interesting than only blinking LEDs. Blinking LEDs is fine, but after a while it gets boring, honestly. So basically this project became a mix of game logic + embedded peripherals + Proteus simulation + a frontend web demo so it can be shown without opening STM32CubeIDE every time.
 
-The player starts the game, enters a 4-digit guess, and tries to find the hidden code before the countdown reaches zero. The system gives feedback after each guess:
+The GitHub repo is here:
+
+[https://github.com/mohadesehesmaeilzadeh/stm32-mastermind-game](https://github.com/mohadesehesmaeilzadeh/stm32-mastermind-game)
+
+## What the game does, in normal words
+
+When the game starts, the STM32 creates a secret 4-digit code. The player enters guesses through the serial terminal. After each guess, the LCD and terminal show feedback using three symbols:
 
 | Symbol | Meaning |
 |---|---|
-| `*` | Correct digit in the correct position |
-| `+` | Correct digit in the wrong position |
-| `-` | Digit is not in the code |
+| `*` | right digit, right place |
+| `+` | right digit, wrong place |
+| `-` | this digit is not in the code |
 
-The game also has a rescue button that can add extra time two times. If the player guesses correctly, the game shows a win state. If time runs out, the buzzer activates and the game ends.
+For example, if the secret code is `3479` and the player enters `3456`, some digits may be correct, some may be in the wrong place, and some are just not useful. The goal is to understand the feedback and solve the code before the timer reaches zero.
 
-## Technical Summary
+There is also a rescue button connected to an external interrupt. First press adds 15 seconds, second press adds 5 seconds, and after that it doesn't help anymore. The LEDs show those chances visually. If time runs out, the buzzer turns on and the game is over. If the guess is correct, the game prints the win message.
 
-The firmware runs on an STM32F401VCTx and uses USART input, GPIO outputs, timer interrupts, and an external interrupt button. The project drives a character LCD, a multiplexed four-digit seven-segment display, two LEDs, and a buzzer. A static web interface in `web_demo/` mirrors the embedded logic so the project can be demonstrated without STM32CubeIDE or Proteus.
+## Hardware / simulation preview
 
-## 🌐 Web Demo
-
-The browser demo is available in [`web_demo/`](web_demo/). It is fully frontend-only: no backend, no database, and no build step is required for normal use.
-
-Live demo placeholder:
-
-[https://mohadesehesmaeilzadeh.github.io/stm32-mastermind-game/web_demo/](https://mohadesehesmaeilzadeh.github.io/stm32-mastermind-game/web_demo/)
-
-Enable GitHub Pages for the repository before using this link publicly.
-
-### Web Interface Preview
-
-![Web interface landing preview](web_demo/assets/screenshots/screenshot-latest.png)
-
-### Interactive Simulator Preview
-
-![Interactive STM32 Mastermind simulator](web_demo/assets/screenshots/screenshot-demo.png)
-
-### Run Locally
-
-Option 1: open [`web_demo/index.html`](web_demo/index.html) directly in a browser.
-
-Option 2: run a local static server:
-
-```bash
-cd web_demo
-python -m http.server 8080
-```
-
-Then open:
-
-```text
-http://localhost:8080
-```
-
-### Web Demo Features
-
-- Modern dark/light interface with responsive layout
-- Hero section, architecture visualization, feature cards, technology badges, workflow steps, gallery, and GitHub CTA
-- Interactive USART-style terminal
-- LCD feedback simulation
-- Four-digit seven-segment countdown display
-- STM32-style state machine: `WAIT_START`, `PLAYING`, `GAMEOVER`
-- EXTI rescue button with two-use behavior
-- LEDs, buzzer state, pressure meter, guess history, and feedback decoder
-- Optional secret-code reveal for teaching and debugging
-
-## Screenshots
-
-### Proteus Simulation
+Here is the Proteus simulation while the game is running:
 
 ![Proteus simulation running the Mastermind game](docs/images/proteus-game-start.png)
 
+And this one is the win state:
+
 ![Proteus simulation showing a completed winning game](docs/images/proteus-win-state.png)
 
-## Architecture
+## How the STM32 parts talk to each other
+
+This was the part where I had to think a bit. The project is not just "read input and print output". Different microcontroller parts have their own job.
 
 ```mermaid
 flowchart LR
@@ -92,52 +53,52 @@ flowchart LR
     B --> H["Buzzer Output"]
 ```
 
-Text-based view:
+The same idea without the diagram:
 
 ```text
-Serial Terminal --> USART1 IRQ --> Game State Machine --> LCD Feedback
-                                           |
-EXTI Button -----> EXTI0 IRQ --------------+
-                                           |
-TIM2 IRQ -------> Countdown + 7-Segment ---+
-                                           |
-                                           +--> LEDs / Buzzer
+Serial Terminal --> USART1 interrupt/input --> Game logic
+                                             |
+EXTI button ------> Rescue interrupt --------+
+                                             |
+TIM2 timer -------> Countdown / display -----+
+                                             |
+                                             +--> LCD, LEDs, buzzer
 ```
 
-## Firmware Behavior
+The USART part is used for starting the game and entering guesses. TIM2 handles the countdown and keeps the display updated. GPIO pins drive the LCD, seven-segment display, LEDs, and buzzer. EXTI0 is used for the rescue button. It sounds clean now, but to be fair interrupt timing can get weird fast if you put too much work inside callbacks.
 
-| State | Description |
+## Main firmware behavior
+
+The firmware has three main states:
+
+| State | What happens |
 |---|---|
-| `STATE_WAIT_START` | Waits for `S` or `s` from the serial terminal |
-| `STATE_PLAYING` | Accepts 4-digit guesses, updates feedback, and runs countdown |
-| `STATE_GAMEOVER` | Shows win/loss result and waits for restart |
+| `STATE_WAIT_START` | waits for `S` or `s` from the terminal |
+| `STATE_PLAYING` | accepts 4-digit guesses and updates the game |
+| `STATE_GAMEOVER` | shows win/loss result and waits for restart |
 
-## Hardware
+The feedback algorithm checks exact matches first, then checks the remaining digits for wrong-position matches. This avoids counting the same digit twice. That little detail matters more than it looks at first.
 
-- STM32F401VCTx microcontroller
-- Character LCD in 4-bit mode
-- Four-digit seven-segment display
-- USART virtual terminal
-- Push button connected to EXTI0
-- Two LED indicators
-- Buzzer or speaker output
+## Pin connections I used
 
-## Pin Connections
-
-| Module | STM32 Pin(s) | Function |
+| Part | STM32 pin(s) | Job |
 |---|---|---|
-| USART1 TX/RX | PA9 / PA10 | Serial terminal communication |
+| USART1 TX/RX | PA9 / PA10 | virtual terminal |
 | LCD RS | PC0 | LCD register select |
 | LCD EN | PC1 | LCD enable |
-| LCD D4-D7 | PC2-PC5 | LCD 4-bit data bus |
-| Seven-segment segments | PE9-PE15 | Segment outputs |
-| Seven-segment digit enables | PB8, PB9, PB10, PB12 | Digit multiplexing |
-| Rescue button | PE0 | EXTI0 input |
-| LED 1 | PD12 | First rescue indicator |
-| LED 2 | PD13 | Second rescue indicator |
-| Buzzer | PD11 | Timeout indicator |
+| LCD D4-D7 | PC2-PC5 | LCD 4-bit data |
+| Seven-segment segments | PE9-PE15 | segment outputs |
+| Seven-segment digit enables | PB8, PB9, PB10, PB12 | digit selection |
+| Rescue button | PE0 | EXTI0 interrupt input |
+| LED 1 | PD12 | first rescue chance |
+| LED 2 | PD13 | second rescue chance |
+| Buzzer | PD11 | timeout / danger output |
 
-## Project Structure
+Note to self: grounding inputs properly saves a lot of pain. Floating buttons can make debugging feel haunted.
+
+## The code and folders
+
+The repository is arranged like this:
 
 ```text
 .
@@ -157,8 +118,6 @@ TIM2 IRQ -------> Countdown + 7-Segment ---+
 |-- web_demo/
 |   |-- assets/
 |   |   |-- gallery/
-|   |   |   |-- proteus-game-start.png
-|   |   |   `-- proteus-win-state.png
 |   |   `-- screenshots/
 |   |       |-- screenshot-demo.png
 |   |       `-- screenshot-latest.png
@@ -172,86 +131,102 @@ TIM2 IRQ -------> Countdown + 7-Segment ---+
 `-- README.md
 ```
 
-## Build Instructions
+Inside the STM32 project, `Core/Src/main.c` is where most of the game logic lives. It handles setup, game state, LCD output, UART messages, timer behavior, and GPIO control. The `Core/Inc` folder has the headers generated by STM32CubeIDE. The `Drivers` folder is the STM32 HAL and CMSIS stuff. I didn't rewrite those because they are generated/library files.
 
-### STM32CubeIDE
+`stm32f4xx_it.c` is mostly interrupt routing, and `stm32f4xx_hal_msp.c` contains the low-level peripheral setup generated by CubeIDE. The linker script `STM32F401VCTX_FLASH.ld` tells the build how flash and RAM are laid out. Not the most exciting file in the world, but if it is wrong, nothing runs, so yeah it matters.
 
-1. Open STM32CubeIDE.
-2. Select `File > Import`.
-3. Choose `Existing Projects into Workspace`.
-4. Select the `firmware/Mastermind_Game` folder.
-5. Build the project.
-6. Flash the firmware to the STM32 board or use the generated output in Proteus.
+The `simulation/` folder has the Proteus project. The `docs/` folder has the final PDF and images. The `web_demo/` folder is my browser version of the project. It is not required for the STM32 firmware, but it makes the whole thing much easier to explain.
 
-### Proteus Simulation
+## Web demo
 
-1. Open Proteus.
-2. Open `simulation/FINAL_PROJECT.pdsprj`.
-3. Attach the generated firmware file if needed.
-4. Start the simulation.
-5. Use the virtual terminal to send `S` and 4-digit guesses.
+I also made a frontend-only web demo for the same game. No backend, no database, no login, no setup drama. Just HTML, CSS, and JavaScript.
 
-## Deployment Guide
+Live Demo:
 
-### GitHub Pages
+[https://mohadesehesmaeilzadeh.github.io/stm32-mastermind-game/web_demo/](https://mohadesehesmaeilzadeh.github.io/stm32-mastermind-game/web_demo/)
 
-1. Push the repository to GitHub.
-2. Open the repository page.
-3. Go to `Settings > Pages`.
-4. Under `Build and deployment`, choose `Deploy from a branch`.
-5. Select branch `main` and folder `/root`.
-6. Save the settings.
-7. Open:
+If GitHub Pages is not enabled yet, the link above may not work until it is turned on from repository settings.
 
-```text
-https://mohadesehesmaeilzadeh.github.io/stm32-mastermind-game/web_demo/
+![Web Demo Screenshot](web_demo/assets/screenshots/screenshot-latest.png)
+
+![Interactive Web Simulator](web_demo/assets/screenshots/screenshot-demo.png)
+
+The web version simulates the serial terminal, LCD, seven-segment countdown, rescue button, LEDs, buzzer state, and feedback history. I added a dark/light mode too because presentation screenshots look much better that way. The debug option can reveal the secret code, which is useful when explaining the algorithm in class.
+
+To run it locally:
+
+```bash
+cd web_demo
+python -m http.server 8080
 ```
 
-### Other Free Options
-
-- Vercel: import the GitHub repository and set the output/publish directory to `web_demo`.
-- Netlify: import the GitHub repository and set the publish directory to `web_demo`.
-
-## Automatic Screenshot Update
-
-The README always displays:
+Then open this in the browser:
 
 ```text
-web_demo/assets/screenshots/screenshot-latest.png
-web_demo/assets/screenshots/screenshot-demo.png
+http://localhost:8080
 ```
 
-When the web design changes, regenerate those files and commit them. Because the filenames stay the same, the README image automatically shows the newest version.
+You can also open `web_demo/index.html` directly, but using a tiny local server is usually cleaner.
 
-Install screenshot dependencies once:
+## STM32CubeIDE setup
+
+Open STM32CubeIDE, import the project from `firmware/Mastermind_Game`, then build it. If you are using Proteus, attach the generated firmware output to the STM32 model if needed and run `simulation/FINAL_PROJECT.pdsprj`.
+
+Serial terminal settings:
+
+| Setting | Value |
+|---|---|
+| Baud rate | 9600 |
+| Data bits | 8 |
+| Parity | None |
+| Stop bits | 1 |
+| Flow control | None |
+
+Once the simulation starts, send `S` to begin, then enter 4-digit guesses. Long story short: if the timer hits zero before you guess correctly, you lose.
+
+## Updating the web screenshots
+
+The README uses fixed screenshot names, so when the design changes I only need to regenerate the images and commit them again.
+
+Install dependencies once:
 
 ```bash
 cd web_demo
 npm install
 ```
 
-Capture fresh screenshots:
+Then capture the new screenshots:
 
 ```bash
 npm run screenshot
 ```
 
-If Google Chrome is installed in a custom location, set `CHROME_PATH` before running the script:
+The script updates these files:
 
-```bash
-CHROME_PATH="/path/to/chrome" npm run screenshot
+```text
+web_demo/assets/screenshots/screenshot-latest.png
+web_demo/assets/screenshots/screenshot-demo.png
 ```
 
-## Suggested Git Commands
+If Chrome is installed somewhere unusual, set `CHROME_PATH` before running it. On my Windows setup the default Chrome path worked.
 
-```bash
-git status
-git add .
-git commit -m "Add premium web demo interface"
-git push
+## Deploying the web demo
+
+For GitHub Pages, go to the repository on GitHub, open `Settings > Pages`, choose `Deploy from a branch`, select `main`, and use `/root`. After it builds, the web demo should be available at:
+
+```text
+https://mohadesehesmaeilzadeh.github.io/stm32-mastermind-game/web_demo/
 ```
 
-For the first push to a new repository:
+Vercel and Netlify also work. For those, import the GitHub repo and set `web_demo` as the publish directory.
+
+## About the `.gitignore`
+
+I kept a `.gitignore` because embedded projects generate a lot of noisy files. Object files, debug builds, `.elf`, `.hex`, `.map`, Proteus backup files, editor folders, and `web_demo/node_modules/` should not be committed every time. The actual source files, CubeIDE project files, simulation file, screenshots, and documentation stay in the repo.
+
+## Git commands I used
+
+If starting fresh, the basic flow is:
 
 ```bash
 git init
@@ -262,57 +237,29 @@ git commit -m "Initial STM32 Mastermind project"
 git push -u origin main
 ```
 
-## Recommended `.gitignore`
+For normal updates:
 
-This repository already ignores common embedded, simulation, editor, and web dependency files, including:
-
-```gitignore
-Debug/
-Release/
-build/
-out/
-*.o
-*.obj
-*.d
-*.su
-*.cyclo
-*.elf
-*.hex
-*.bin
-*.map
-*.list
-*.srec
-*.uf2
-.metadata/
-.settings/
-RemoteSystemsTempFiles/
-*.pdsbak
-*.PDSPRJ.*
-*.workspace
-*.log
-*.tmp
-web_demo/node_modules/
-web_demo/.cache/
-web_demo/dist/
-web_demo/build/
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
-desktop.ini
+```bash
+git status
+git add .
+git commit -m "Update README and web demo"
+git push
 ```
 
-## Known Improvements
+## Things I would improve next
 
-- Move LCD and UART output out of interrupt handlers.
-- Adjust TIM2 configuration so one displayed second equals one real second.
-- Increase seven-segment refresh rate to reduce visible flicker.
-- Add button debouncing for the rescue input.
-- Replace hard-coded pin numbers with named constants.
-- Split the firmware into separate LCD, UART, display, and game-logic modules.
+The project works, but yeah, there are parts I would clean up if I had more time. I would split the firmware into smaller modules like `lcd.c`, `uart.c`, `display.c`, and `game.c` instead of keeping too much inside `main.c`. I would also move heavier LCD/UART work away from interrupt callbacks, because that can become annoying on real hardware.
+
+The seven-segment refresh timing could be tuned better too. In simulation it is okay, but real hardware may need cleaner multiplexing to avoid flicker. Also, the rescue button should have proper debouncing. Button bouncing is one of those tiny things that suddenly wastes an entire evening.
+
+## What I learned
+
+This project helped me understand that microcontroller projects are mostly about coordination. The game logic itself is not super hard, but making the timer, UART input, display, LCD, button interrupt, LEDs, and buzzer all behave together is the real work.
+
+I also learned that simulation is helpful but not magic. Sometimes Proteus makes things look fine, then you realize the code timing still needs attention. And the web demo was a cool extra step because it forced me to explain the embedded system visually, not just write code and hope people understand it.
 
 ## Credits
 
 Mohadeseh Esmaeilzadeh.
 
-Developed for a microcontroller/microprocessor course using STM32CubeIDE, Proteus, and a frontend-only JavaScript web demo.
+Made for a microcontroller/microprocessor course using STM32CubeIDE, Proteus, C, HTML, CSS, and JavaScript.
