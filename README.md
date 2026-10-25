@@ -260,7 +260,7 @@ We also learned that simulation is helpful but not magic. Sometimes Proteus make
 
 ## Credits
 
-Authors:
+**Authors:**
 Negar Siyahmansour
 Mohadeseh Esmaeilzadeh
 
