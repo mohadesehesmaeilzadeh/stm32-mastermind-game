@@ -261,8 +261,8 @@ We also learned that simulation is helpful but not magic. Sometimes Proteus make
 ## Credits
 
 **Authors:**
-Negar Siyahmansour
-Mohadeseh Esmaeilzadeh
+- Negar Siyahmansour
+- Mohadeseh Esmaeilzadeh
 
 
 Made for a microcontroller/microprocessor course using STM32CubeIDE, Proteus, C, HTML, CSS, and JavaScript.
